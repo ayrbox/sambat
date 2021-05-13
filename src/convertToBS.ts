@@ -60,5 +60,5 @@ export const getBsMonthDays = (bsYear: number, bsMonth: number) => {
     }
   }
 
-  return null;
+  return 0;
 };

@@ -4,9 +4,15 @@
   "description": "Nepali (BikramSambat) Calendar",
   "main": "lib/index.js",
   "scripts": {
+    "build": "tsc",
     "test": "jest"
   },
-  "keywords": ["nepali", "calendar", "bikram", "sambat"],
+  "keywords": [
+    "nepali",
+    "calendar",
+    "bikram",
+    "sambat"
+  ],
   "author": "ayrbox",
   "license": "MIT",
   "devDependencies": {
