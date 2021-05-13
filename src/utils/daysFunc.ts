@@ -1,10 +1,9 @@
 import {
   MAX_SAMBAT,
-  MIN_DATE,
   MIN_SAMBAT,
   SAMBAT_NUMBER_OF_DAYS,
   SAMBAT_NUMBER_OF_DAYS_OCCURANCE,
-} from "./constants";
+} from "../constants";
 
 /**
  * Returns total number of days until the date provide since start (min) date.
@@ -75,15 +74,4 @@ export const computeDaysByMonth = (month: number, year: number) => {
       })
       .reduce((t, days) => t + days, 0);
   };
-};
-
-export const convertToAD = (
-  year: number,
-  month: number,
-  date: number
-): Date => {
-  const daysNumFromMinBsYear = totalDaysTillDate(year, month, date);
-  const adDate = new Date(MIN_DATE.year, MIN_DATE.month, MIN_DATE.date - 1);
-  adDate.setDate(adDate.getDate() + daysNumFromMinBsYear);
-  return adDate;
 };
