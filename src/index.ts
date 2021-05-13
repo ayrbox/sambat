@@ -22,23 +22,9 @@ export const totalDaysTillDate = (
     throw new Error("Year out of range.");
   }
 
-  const yearsTillDate = year - MIN_SAMBAT.year;
-
-  // arrays to loop through months
-  const months = new Array<number>(12).fill(undefined).map((_, idx) => idx + 1);
-
-  // 1 to month (yearsTillDate + 1)
-  // month to 12 (yearsTillDate)
-
-  // Total number of days since intital date
-  const totalDays = months.reduce(
-    (total, monthIdx) =>
-      total +
-      totalNumberOfDaysByMonth(
-        monthIdx,
-        monthIdx < month ? yearsTillDate + 1 : yearsTillDate
-      ),
-    0
+  const computeFunc = computeDaysByMonth(month, year);
+  const totalDays = SAMBAT_NUMBER_OF_DAYS_OCCURANCE.map(computeFunc).reduce(
+    (t, days) => t + days
   );
 
   // Adjust date count
@@ -56,44 +42,42 @@ export const totalDaysTillDate = (
   }
 };
 
-// get me total days till year for given month
-export const totalNumberOfDaysByMonth = (
-  month: number,
-  yearDiff: number
-): number => {
-  if (yearDiff === 0) return 0;
-  const monthData = SAMBAT_NUMBER_OF_DAYS_OCCURANCE[month - 1];
-  const { data } = monthData.reduce(
-    (acc, y) => {
-      if (acc.remainder === 0) return acc;
+/**
+ *  Compute number of days in past months till MIN_DATE (1913).
+ * @param month
+ * @param year
+ * @returns functions that takes repetitive occurance for months, that returns total number of days for the month since MIN_DATE
+ */
+export const computeDaysByMonth = (month: number, year: number) => {
+  const numberOfYears = year - MIN_SAMBAT.year;
 
-      if (acc.remainder < y) {
-        return {
-          data: [...acc.data, acc.remainder],
-          remainder: 0,
-        };
-      }
+  return (monthData: number[], monthIdx: number) => {
+    if (numberOfYears === 0) return 0;
 
-      return {
-        data: [...acc.data, y],
-        remainder: acc.remainder - y,
-      };
-    },
-    {
-      data: [],
-      remainder: yearDiff,
-    }
-  );
+    // Number of years to compute. Include days from past months for this years too.
+    const years = monthIdx < month - 1 ? numberOfYears + 1 : numberOfYears;
 
-  return data
-    .map((o, idx) => {
-      const numberOfDays = SAMBAT_NUMBER_OF_DAYS[month - 1][idx % 2]; // number of days in month
-      return numberOfDays * o;
-    })
-    .reduce((total, days) => total + days, 0);
+    const [_, occurances] = monthData.reduce(
+      ([remaining, occurances], occurance) => {
+        if (remaining === 0) return [remaining, occurances];
+        if (remaining < occurance) {
+          return [0, [...occurances, remaining]];
+        }
+        return [remaining - occurance, [...occurances, occurance]];
+      },
+      [years, []] as [number, number[]]
+    );
+
+    return occurances
+      .map((occurance, idx) => {
+        const numberOfDays = SAMBAT_NUMBER_OF_DAYS[monthIdx][idx % 2];
+        return numberOfDays * occurance;
+      })
+      .reduce((t, days) => t + days, 0);
+  };
 };
 
-export const convertBStoAD = (
+export const convertToAD = (
   year: number,
   month: number,
   date: number
